@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2 } from "lucide-react";
-import { updateTask, deleteTask } from "@/app/actions/tasks";
+import { toggleTask, deleteTask } from "@/app/actions/tasks";
 import type { types } from "@/app/lib/client";
 
 interface TaskCardProps {
@@ -20,14 +20,11 @@ export default function TaskCard({ task }: TaskCardProps) {
 
 		startTransition(async () => {
 			try {
-				const formData = new FormData();
-				formData.append("completed", checked.toString());
-
-				await updateTask(task.id.toString(), formData);
+				await toggleTask(task.id.toString());
 			} catch (error) {
 				// Revert the state if the update fails
 				setIsCompleted(!checked);
-				console.error("Failed to update task:", error);
+				console.error("Failed to toggle task:", error);
 			}
 		});
 	};

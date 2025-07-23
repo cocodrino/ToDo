@@ -120,6 +120,40 @@ export const updateTask = api(
   },
 );
 
+// Toggle task completion status
+export const toggleTask = api(
+  {
+    expose: true,
+    method: "PATCH",
+    path: "/api/tasks/:taskId/toggle",
+    auth: true,
+  },
+  async (params: { taskId: string }): Promise<TaskResponse> => {
+    const { taskId } = params;
+    const auth = getAuthData();
+
+    if (!auth) {
+      throw new APIError(ErrCode.Unauthenticated, "Unauthenticated");
+    }
+
+    // First, verify the task belongs to the user
+    const task = await prisma.task.findFirst({
+      where: { id: Number.parseInt(taskId, 10), userId: auth.userID },
+    });
+    if (!task) {
+      return { data: null };
+    }
+
+    // Toggle the completed status
+    const updatedTask = await prisma.task.update({
+      where: { id: Number.parseInt(taskId, 10) },
+      data: { completed: !task.completed },
+    });
+
+    return { data: updatedTask };
+  },
+);
+
 // Delete a task
 export const deleteTask = api(
   {

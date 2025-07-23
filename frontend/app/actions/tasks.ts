@@ -1,10 +1,9 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 import getRequestClient from "../lib/getRequestClient";
 
-// Create task action
 export async function createTask(formData: FormData) {
     const { userId } = await auth();
 
@@ -15,14 +14,14 @@ export async function createTask(formData: FormData) {
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
 
-    if (!title) {
+    if (!title.trim()) {
         throw new Error("Title is required");
     }
 
     try {
         // Use the configured Encore RPC client
         const client = getRequestClient();
-        await client.tasks.createTask({ title, description });
+        await client.tasks.createTask({ title: title.trim(), description: description.trim() || undefined });
 
         revalidatePath("/tasks");
         return { success: true };
@@ -32,7 +31,6 @@ export async function createTask(formData: FormData) {
     }
 }
 
-// Update task action
 export async function updateTask(taskId: string, formData: FormData) {
     const { userId } = await auth();
 
@@ -57,7 +55,26 @@ export async function updateTask(taskId: string, formData: FormData) {
     }
 }
 
-// Delete task action
+export async function toggleTask(taskId: string) {
+    const { userId } = await auth();
+
+    if (!userId) {
+        throw new Error("Unauthenticated");
+    }
+
+    try {
+        // Use the configured Encore RPC client
+        const client = getRequestClient();
+        await client.tasks.toggleTask(taskId);
+
+        revalidatePath("/tasks");
+        return { success: true };
+    } catch (error) {
+        console.error("Error toggling task:", error);
+        throw new Error("Failed to toggle task");
+    }
+}
+
 export async function deleteTask(taskId: string) {
     const { userId } = await auth();
 

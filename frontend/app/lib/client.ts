@@ -130,6 +130,7 @@ export namespace tasks {
             this.deleteTask = this.deleteTask.bind(this)
             this.getTask = this.getTask.bind(this)
             this.getTasks = this.getTasks.bind(this)
+            this.toggleTask = this.toggleTask.bind(this)
             this.updateTask = this.updateTask.bind(this)
         }
 
@@ -170,6 +171,15 @@ export namespace tasks {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`)
             return await resp.json() as types.TasksResponse
+        }
+
+        /**
+         * Toggle task completion status
+         */
+        public async toggleTask(taskId: string): Promise<types.TaskResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PATCH", `/api/tasks/${encodeURIComponent(taskId)}/toggle`)
+            return await resp.json() as types.TaskResponse
         }
 
         /**
