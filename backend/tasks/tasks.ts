@@ -44,6 +44,7 @@ export const getTasks = api(
   },
   async (): Promise<TasksResponse> => {
     const auth = getAuthData();
+    console.log("auth", auth);
 
     if (!auth) {
       throw new APIError(ErrCode.Unauthenticated, "Unauthenticated");
