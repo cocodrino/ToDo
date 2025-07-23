@@ -2,6 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { createTask } from "../actions/tasks";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function CreateTaskForm() {
 	const [title, setTitle] = useState("");
@@ -32,48 +37,52 @@ export default function CreateTaskForm() {
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="space-y-4">
-			<div>
-				<label
-					htmlFor="title"
-					className="block text-sm font-medium text-gray-700"
-				>
-					Title
-				</label>
-				<input
-					type="text"
-					id="title"
-					value={title}
-					onChange={(e) => setTitle(e.target.value)}
-					required
-					disabled={isPending}
-					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-				/>
-			</div>
-			<div>
-				<label
-					htmlFor="description"
-					className="block text-sm font-medium text-gray-700"
-				>
-					Description
-				</label>
-				<textarea
-					id="description"
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-					rows={3}
-					disabled={isPending}
-					className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-				/>
-			</div>
-			{error && <p className="text-red-500 text-sm">{error}</p>}
-			<button
-				type="submit"
-				disabled={isPending}
-				className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
-			>
-				{isPending ? "Creating..." : "Create Task"}
-			</button>
-		</form>
+		<Card>
+			<CardHeader>
+				<CardTitle>Create New Task</CardTitle>
+			</CardHeader>
+			<CardContent>
+				<form onSubmit={handleSubmit} className="space-y-4">
+					<div className="space-y-2">
+						<Label htmlFor="title">Title</Label>
+						<Input
+							type="text"
+							id="title"
+							value={title}
+							onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+								setTitle(e.target.value)
+							}
+							required
+							disabled={isPending}
+							placeholder="Enter task title..."
+						/>
+					</div>
+
+					<div className="space-y-2">
+						<Label htmlFor="description">Description</Label>
+						<Textarea
+							id="description"
+							value={description}
+							onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+								setDescription(e.target.value)
+							}
+							disabled={isPending}
+							placeholder="Enter task description (optional)..."
+							rows={3}
+						/>
+					</div>
+
+					{error && <p className="text-sm text-destructive">{error}</p>}
+
+					<Button
+						type="submit"
+						disabled={isPending || !title.trim()}
+						className="w-full"
+					>
+						{isPending ? "Creating..." : "Create Task"}
+					</Button>
+				</form>
+			</CardContent>
+		</Card>
 	);
 }

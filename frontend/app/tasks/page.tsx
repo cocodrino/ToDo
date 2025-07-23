@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import getRequestClient from "../lib/getRequestClient";
 import type { types } from "../lib/client";
 import CreateTaskForm from "./createTaskForm";
+import TaskCard from "../../components/custom/molecules/TaskCard";
 
 export default async function Tasks() {
 	const { userId } = await auth();
@@ -27,24 +28,25 @@ export default async function Tasks() {
 	}
 
 	return (
-		<section>
-			<h1 className="text-3xl">Your Tasks</h1>
-			<br />
+		<section className="max-w-4xl mx-auto p-6">
+			<h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
 			<CreateTaskForm />
-			<br />
-			{!response || response.data.length === 0 ? (
-				<p>No tasks found. Create one above!</p>
-			) : (
-				<ul>
-					{response.data.map((task: types.Task) => (
-						<li key={task.id}>
-							<h3>{task.title}</h3>
-							<p>{task.description}</p>
-							<p>Completed: {task.completed ? "Yes" : "No"}</p>
-						</li>
-					))}
-				</ul>
-			)}
+
+			<div className="mt-8">
+				{!response || response.data.length === 0 ? (
+					<div className="text-center py-8">
+						<p className="text-muted-foreground">
+							No tasks found. Create one above!
+						</p>
+					</div>
+				) : (
+					<div className="space-y-4">
+						{response.data.map((task: types.Task) => (
+							<TaskCard key={task.id} task={task} />
+						))}
+					</div>
+				)}
+			</div>
 		</section>
 	);
 }
