@@ -1,6 +1,8 @@
+import { api, APIError, ErrCode } from "encore.dev/api";
 
-import { api } from "encore.dev/api";
 import { PrismaClient } from "@prisma/client";
+import { getAuthData } from "~encore/auth";
+import type { Task, TaskResponse, TasksResponse } from "../types/tasks";
 
 const prisma = new PrismaClient();
 
@@ -10,17 +12,26 @@ export const createTask = api(
     expose: true,
     method: "POST",
     path: "/api/tasks",
+    auth: true,
   },
-  async (params: { title: string; description?: string; userId: number }) => {
-    const { title, description, userId } = params;
-    return await prisma.task.create({
+  async (params: { title: string; description?: string }): Promise<TaskResponse> => {
+    const { title, description } = params;
+    const auth = getAuthData();
+
+    if (!auth) {
+      throw new APIError(ErrCode.Unauthenticated, "Unauthenticated");
+    }
+
+    const task = await prisma.task.create({
       data: {
         title,
         description,
-        userId,
+        userId: auth.userID,
       },
     });
-  }
+
+    return { data: task };
+  },
 );
 
 // Get all tasks
@@ -29,10 +40,21 @@ export const getTasks = api(
     expose: true,
     method: "GET",
     path: "/api/tasks",
+    auth: true,
   },
-  async () => {
-    return await prisma.task.findMany();
-  }
+  async (): Promise<TasksResponse> => {
+    const auth = getAuthData();
+
+    if (!auth) {
+      throw new APIError(ErrCode.Unauthenticated, "Unauthenticated");
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: { userId: auth.userID },
+    });
+
+    return { data: tasks };
+  },
 );
 
 // Get a single task
@@ -41,13 +63,22 @@ export const getTask = api(
     expose: true,
     method: "GET",
     path: "/api/tasks/:id",
+    auth: true,
   },
-  async (params: { id: string }) => {
+  async (params: { id: string }): Promise<TaskResponse> => {
     const { id } = params;
-    return await prisma.task.findUnique({
-      where: { id: parseInt(id, 10) },
+    const auth = getAuthData();
+
+    if (!auth) {
+      throw new APIError(ErrCode.Unauthenticated, "Unauthenticated");
+    }
+
+    const task = await prisma.task.findFirst({
+      where: { id: Number.parseInt(id, 10), userId: auth.userID },
     });
-  }
+
+    return { data: task };
+  },
 );
 
 // Update a task
@@ -56,14 +87,36 @@ export const updateTask = api(
     expose: true,
     method: "PUT",
     path: "/api/tasks/:id",
+    auth: true,
   },
-  async (params: { id: string; title?: string; description?: string; completed?: boolean }) => {
+  async (params: {
+    id: string;
+    title?: string;
+    description?: string;
+    completed?: boolean;
+  }): Promise<TaskResponse> => {
     const { id, ...data } = params;
-    return await prisma.task.update({
-      where: { id: parseInt(id, 10) },
+    const auth = getAuthData();
+
+    if (!auth) {
+      throw new APIError(ErrCode.Unauthenticated, "Unauthenticated");
+    }
+
+    // First, verify the task belongs to the user
+    const task = await prisma.task.findFirst({
+      where: { id: Number.parseInt(id, 10), userId: auth.userID },
+    });
+    if (!task) {
+      return { data: null };
+    }
+
+    const updatedTask = await prisma.task.update({
+      where: { id: Number.parseInt(id, 10) },
       data,
     });
-  }
+
+    return { data: updatedTask };
+  },
 );
 
 // Delete a task
@@ -72,13 +125,28 @@ export const deleteTask = api(
     expose: true,
     method: "DELETE",
     path: "/api/tasks/:id",
+    auth: true,
   },
-  async (params: { id: string }) => {
+  async (params: { id: string }): Promise<TaskResponse> => {
     const { id } = params;
-    return await prisma.task.delete({
-      where: { id: parseInt(id, 10) },
+    const auth = getAuthData();
+
+    if (!auth) {
+      throw new APIError(ErrCode.Unauthenticated, "Unauthenticated");
+    }
+
+    // First, verify the task belongs to the user
+    const task = await prisma.task.findFirst({
+      where: { id: Number.parseInt(id, 10), userId: auth.userID },
     });
-  }
+    if (!task) {
+      return { data: null };
+    }
+
+    const deletedTask = await prisma.task.delete({
+      where: { id: Number.parseInt(id, 10) },
+    });
+
+    return { data: deletedTask };
+  },
 );
-
-

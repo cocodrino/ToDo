@@ -1,17 +1,19 @@
 {
-  "name": "backend",
-  "private": true,
-  "version": "0.0.1",
-  "description": "Encore + Next Starter",
-  "license": "MPL-2.0",
-  "type": "module",
-  "devDependencies": {
-    "@types/node": "^20",
-    "typescript": "^5.2.2"
-  },
-  "dependencies": {
-    "@prisma/client": "^6.12.0",
-    "encore.dev": "^1.48.10",
-    "prisma": "^6.12.0"
-  }
+	"name": "task-manager-backend",
+	"private": true,
+	"version": "0.0.1",
+	"description": "Task Manager Backend",
+	"license": "MPL-2.0",
+	"type": "module",
+	"devDependencies": {
+		"@types/node": "^20",
+		"typescript": "^5.2.2"
+	},
+	"dependencies": {
+		"@clerk/clerk-sdk-node": "^4.13.23",
+		"@prisma/client": "^6.12.0",
+		"cookie-parser": "^1.4.7",
+		"encore.dev": "^1.48.11",
+		"prisma": "^6.12.0"
+	}
 }

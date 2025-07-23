@@ -7,10 +7,16 @@ import Client, { Environment } from "./client";
  * and make requests to that, otherwise we use the staging client.
  */
 const getRequestClient = () => {
-  const token = cookies().get("auth-token")?.value || "";
+  const token = cookies().get("__session")?.value || "";
+  const localUrl = process.env.BACKEND_URL;
+
+  if (!localUrl) {
+    throw new Error("BACKEND_URL is not set");
+  }
+
   const env =
     process.env.NODE_ENV === "development"
-      ? "http://127.0.0.1:4000"
+      ? localUrl
       : Environment("staging");
 
   return new Client(env, {
