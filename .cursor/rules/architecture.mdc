@@ -1,8 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: true
----
-- este proyecto usa npm para las dependencias y los paquetes, por favor siempre usa npm
-- IMPORTANTE: sigue siempre esta regla: todos los comentarios, logs,que se escriban en el código, deben estar en inglés, en el código de los archivos no deben haber palabras en español aunque conversemos usando el español
-- el proyecto se divide en dos carpetas, backend y frontend, el backend usa encore.ts y el frontend usa nextjs, por favor siempre ten en cuenta esto y que los cambios en el front deben validarse con los cambios en el backend

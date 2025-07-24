@@ -4,3 +4,4 @@ encore.gen.cue
 node_modules
 /encore.gen
 todo.todo
+.cursor
