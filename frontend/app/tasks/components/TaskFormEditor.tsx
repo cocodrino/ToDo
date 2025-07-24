@@ -12,8 +12,8 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { useCreateTask, useUpdateTask } from "../hooks/useTasks";
-import type { types } from "../lib/client";
+import { useCreateTask, useUpdateTask } from "../../hooks/useTasks";
+import type { types } from "../../lib/client";
 import { useEffect } from "react";
 
 // Validation schema

@@ -3,20 +3,29 @@
 import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
 import { useTasks } from "../hooks/useTasks";
-import TaskFormEditor from "./TaskFormEditor";
-import TaskCard from "../../components/custom/molecules/TaskCard";
-import TaskFilters from "../../components/custom/molecules/TaskFilters";
-import TasksStateMessage from "../../components/custom/molecules/TasksStateMessage";
+import TaskFormEditor from "./components/TaskFormEditor";
+import TaskCard from "./components/TaskCard";
+import TaskFilters from "./components/TaskFilters";
+import TaskPagination from "./components/TaskPagination";
+import TasksStateMessage from "./components/TasksStateMessage";
 import { redirect } from "next/navigation";
 import type { types } from "../lib/client";
 
 export default function Tasks() {
 	const { userId, isLoaded } = useAuth();
+	const defaultLimit = Number.parseInt(
+		process.env.NEXT_PUBLIC_PAGINATION_TASKS_LIMIT || "10",
+		10,
+	);
 	const [filters, setFilters] = useState<{
 		text?: string;
 		filter?: "all" | "done" | "pending";
-	}>({ filter: undefined }); // Start with no filter to show all tasks
-	const { data: tasks, isLoading, error } = useTasks(filters);
+		page?: number;
+		limit?: number;
+	}>({ filter: undefined, page: 1, limit: defaultLimit }); // Start with no filter to show all tasks
+	const { data, isLoading, error } = useTasks(filters);
+	const tasks = data?.tasks || [];
+	const pagination = data?.pagination;
 	const [editingTask, setEditingTask] = useState<types.Task | null>(null);
 
 	// Handle authentication
@@ -38,7 +47,12 @@ export default function Tasks() {
 		text?: string;
 		filter?: "all" | "done" | "pending";
 	}) => {
-		setFilters(newFilters);
+		// Reset to page 1 when filters change
+		setFilters({ ...newFilters, page: 1, limit: defaultLimit });
+	};
+
+	const handlePageChange = (newPage: number) => {
+		setFilters((prev) => ({ ...prev, page: newPage }));
 	};
 
 	// Remove the early returns for loading and error states
@@ -80,11 +94,24 @@ export default function Tasks() {
 								</p>
 							</div>
 						) : (
-							<div className="space-y-4 pr-2">
-								{tasks.map((task) => (
-									<TaskCard key={task.id} task={task} onEdit={handleEditTask} />
-								))}
-							</div>
+							<>
+								<div className="space-y-4 pr-2">
+									{tasks.map((task) => (
+										<TaskCard
+											key={task.id}
+											task={task}
+											onEdit={handleEditTask}
+										/>
+									))}
+								</div>
+
+								{pagination && (
+									<TaskPagination
+										pagination={pagination}
+										onPageChange={handlePageChange}
+									/>
+								)}
+							</>
 						)}
 					</div>
 				</div>

@@ -143,10 +143,14 @@ export namespace tasks {
         public async getTasks(params: {
     text?: string
     filter?: string
+    page?: number
+    limit?: number
 }): Promise<types.TasksResponse> {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
                 filter: params.filter,
+                limit:  params.limit === undefined ? undefined : String(params.limit),
+                page:   params.page === undefined ? undefined : String(params.page),
                 text:   params.text,
             })
 
@@ -180,6 +184,15 @@ export namespace tasks {
 }
 
 export namespace types {
+    export interface PaginationInfo {
+        page: number
+        limit: number
+        total: number
+        totalPages: number
+        hasNext: boolean
+        hasPrev: boolean
+    }
+
     export interface Task {
         id: number
         title: string
@@ -196,6 +209,7 @@ export namespace types {
 
     export interface TasksResponse {
         data: Task[]
+        pagination: PaginationInfo
     }
 }
 

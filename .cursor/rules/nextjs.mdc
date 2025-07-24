@@ -104,7 +104,7 @@ guiate en esta estructura que te puede servir para entender cómo organizar los 
     ├─ next.config.js
     ├─ tsconfig.json
     └─ package.json
-    
+
 Convenciones rápidas
 App Router → todo bajo src/app.
 Pages Router → páginas en src/pages, API en src/pages/api.
@@ -120,3 +120,17 @@ No pongas nunca utils, types, hooks repetidos en cada feature; comparte lo gené
 Tests:
 src/features/checkout/checkout.test.tsx
 (colocated) o __tests__ al mismo nivel si tu CI lo prefiere.
+
+cuando un componente solo se una en una pagina, se debe crear una carpeta components, por ejemplo, si la página de tasks tiene dos componentes: CreateTaskForm y TaskList, estos deben colocarse dentro de una carpeta components en esa ruta:
+
+src/
+   └─ tasks/
+      ├─ components/
+      │  ├─ CreateTaskForm.tsx
+      │  └─ TaskList.tsx
+      ├─ page.tsx          ← /tasks (App Router)
+      └─ actions.ts        ← Server Actions / lógica
+
+Regla rápida:
+Si un componente solo lo usa la página (o la feature) “tasks”, va dentro de tasks/components.
+Si más adelante otro módulo lo necesita, lo “subes” a src/components/customs

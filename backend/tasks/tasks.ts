@@ -55,8 +55,8 @@ export const getTasks = api(
     path: "/api/tasks",
     auth: true,
   },
-  async (params: { text?: string; filter?: string }): Promise<TasksResponse> => {
-    const { text, filter } = params;
+  async (params: { text?: string; filter?: string; page?: number; limit?: number }): Promise<TasksResponse> => {
+    const { text, filter, page = 1, limit = 10 } = params;
     const auth = getAuthData();
     log.info("Getting tasks for user", { userId: auth?.userID, text, filter });
 
@@ -83,6 +83,18 @@ export const getTasks = api(
     }
     // If filter is 'all' or undefined, no additional filter is applied
 
+    // Calculate pagination values
+    const skip = (page - 1) * limit;
+    const take = limit;
+
+    // Get total count for pagination
+    const total = await trace("getTasksCount", () =>
+      prisma.task.count({
+        where: whereClause,
+      })
+    );
+
+    // Get paginated tasks
     const tasks = await trace("getTasks", () =>
       prisma.task.findMany({
         where: whereClause,
@@ -90,12 +102,37 @@ export const getTasks = api(
           { createdAt: 'desc' }, // Most recent first
           { id: 'asc' } // Then by ID for consistency
         ],
+        skip,
+        take,
       })
     );
 
-    log.info("Tasks retrieved successfully", { count: tasks.length, text, filter });
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(total / limit);
+    const hasNext = page < totalPages;
+    const hasPrev = page > 1;
 
-    return { data: tasks };
+    log.info("Tasks retrieved successfully", {
+      count: tasks.length,
+      total,
+      page,
+      limit,
+      totalPages,
+      text,
+      filter
+    });
+
+    return {
+      data: tasks,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext,
+        hasPrev,
+      }
+    };
   },
 );
 
