@@ -32,7 +32,6 @@ const BROWSER = typeof globalThis === "object" && ("window" in globalThis);
  * Client is an API client for the todo-4m32 Encore application.
  */
 export default class Client {
-    public readonly admin: admin.ServiceClient
     public readonly tasks: tasks.ServiceClient
     private readonly options: ClientOptions
     private readonly target: string
@@ -48,7 +47,6 @@ export default class Client {
         this.target = target
         this.options = options ?? {}
         const base = new BaseClient(this.target, this.options)
-        this.admin = new admin.ServiceClient(base)
         this.tasks = new tasks.ServiceClient(base)
     }
 
@@ -85,32 +83,6 @@ export interface ClientOptions {
      * a function which returns a new object for each request.
      */
     auth?: auth.AuthParams | AuthDataGenerator
-}
-
-export namespace admin {
-    export interface DashboardData {
-        value: string
-    }
-
-    export class ServiceClient {
-        private baseClient: BaseClient
-
-        constructor(baseClient: BaseClient) {
-            this.baseClient = baseClient
-            this.getDashboardData = this.getDashboardData.bind(this)
-        }
-
-        /**
-         * Endpoint that responds with a hardcoded value.
-         * To call it, run in your terminal:
-         * curl --header "Authorization: dummy-token" http://localhost:4000/admin
-         */
-        public async getDashboardData(): Promise<DashboardData> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/admin`)
-            return await resp.json() as DashboardData
-        }
-    }
 }
 
 export namespace auth {

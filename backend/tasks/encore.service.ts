@@ -1,5 +1,8 @@
 import { Service } from "encore.dev/service";
+import { globalErrorHandler } from "../middleware/globalErrorHandler";
 
-// Encore will consider this directory and all its subdirectories as part of the "tasks" service.
-// https://encore.dev/docs/ts/primitives/services
-export default new Service("tasks");
+export default new Service("tasks", {
+    middlewares: [
+        globalErrorHandler,
+    ],
+});
