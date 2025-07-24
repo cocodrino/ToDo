@@ -1,5 +1,11 @@
 # TODO APP
 
+![Home](docs/images/home.png)
+![tasks](docs/images/tasks.png)
+
+
+
+
 # Estructura del Proyecto
 
 ```
