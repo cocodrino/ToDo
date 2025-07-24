@@ -16,6 +16,7 @@ describe('Global Error Handler Middleware', () => {
 
     test('should pass through successful requests', async () => {
         // Arrange
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const mockRequest = {} as any;
         const mockNext = vi.fn().mockResolvedValue({ success: true });
         const mockHandleApiError = vi.mocked(handleApiError);
@@ -31,6 +32,7 @@ describe('Global Error Handler Middleware', () => {
 
     test('should handle errors and call handleApiError', async () => {
         // Arrange
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const mockRequest = {} as any;
         const testError = new Error('Test error');
         const mockNext = vi.fn().mockRejectedValue(testError);
@@ -46,6 +48,7 @@ describe('Global Error Handler Middleware', () => {
 
     test('should handle Prisma errors through middleware', async () => {
         // Arrange
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const mockRequest = {} as any;
         const prismaError = new Prisma.PrismaClientKnownRequestError('Record not found', {
             code: 'P2025',
@@ -63,6 +66,7 @@ describe('Global Error Handler Middleware', () => {
 
     test('should handle API errors without modification', async () => {
         // Arrange
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
         const mockRequest = {} as any;
         const existingApiError = new APIError(ErrCode.PermissionDenied, 'Access denied');
         const mockNext = vi.fn().mockRejectedValue(existingApiError);
