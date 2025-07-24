@@ -8,6 +8,7 @@
 
 # Estructura del Proyecto
 
+
 ```
 nextjs-starter/
 ├── 📁 backend/                          # Backend con Encore.dev
