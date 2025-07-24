@@ -1,30 +1,42 @@
-import { redirect } from "next/navigation";
-import { auth } from "@clerk/nextjs/server";
-import getRequestClient from "../lib/getRequestClient";
-import type { types } from "../lib/client";
+"use client";
+
+import { useAuth } from "@clerk/nextjs";
+import { useTasks } from "../hooks/useTasks";
 import CreateTaskForm from "./createTaskForm";
 import TaskCard from "../../components/custom/molecules/TaskCard";
+import { redirect } from "next/navigation";
 
-export default async function Tasks() {
-	const { userId } = await auth();
+export default function Tasks() {
+	const { userId, isLoaded } = useAuth();
+	const { data: tasks, isLoading, error } = useTasks();
 
-	if (!userId) {
+	// Handle authentication
+	if (isLoaded && !userId) {
 		redirect("/auth/unauthenticated?from=%2Ftasks");
 	}
 
-	let response: types.TasksResponse | undefined;
-	let error: unknown;
-
-	try {
-		// Use the configured Encore RPC client
-		const client = getRequestClient();
-		response = await client.tasks.getTasks();
-	} catch (err) {
-		error = err;
+	if (!isLoaded || isLoading) {
+		return (
+			<section className="max-w-4xl mx-auto p-6">
+				<h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
+				<div className="text-center py-8">
+					<p className="text-muted-foreground">Loading tasks...</p>
+				</div>
+			</section>
+		);
 	}
 
 	if (error) {
-		throw error;
+		return (
+			<section className="max-w-4xl mx-auto p-6">
+				<h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
+				<div className="text-center py-8">
+					<p className="text-destructive">
+						Error loading tasks: {error.message}
+					</p>
+				</div>
+			</section>
+		);
 	}
 
 	return (
@@ -33,7 +45,7 @@ export default async function Tasks() {
 			<CreateTaskForm />
 
 			<div className="mt-8">
-				{!response || response.data.length === 0 ? (
+				{!tasks || tasks.length === 0 ? (
 					<div className="text-center py-8">
 						<p className="text-muted-foreground">
 							No tasks found. Create one above!
@@ -41,7 +53,7 @@ export default async function Tasks() {
 					</div>
 				) : (
 					<div className="space-y-4">
-						{response.data.map((task: types.Task) => (
+						{tasks.map((task) => (
 							<TaskCard key={task.id} task={task} />
 						))}
 					</div>

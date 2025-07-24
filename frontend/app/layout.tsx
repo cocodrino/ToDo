@@ -6,6 +6,7 @@ import { ClerkProvider, UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "react-hot-toast";
+import Providers from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,25 +30,27 @@ export default async function RootLayout({
 		<ClerkProvider>
 			<html lang="en">
 				<body className={`${inter.className} text-black bg-white`}>
-					<header>
-						<nav className="h-navBar bg-black text-white flex items-center justify-between p-5">
-							<div className="flex items-center">
-								{navLinks.map(({ href, label }) => (
-									<Link
-										className="mr-8 text-inherit hover:underline"
-										key={href}
-										href={href}
-									>
-										{label}
-									</Link>
-								))}
-							</div>
-							{(userId && <UserButton />) || <Button>Sign In</Button>}
-						</nav>
-					</header>
+					<Providers>
+						<header>
+							<nav className="h-navBar bg-black text-white flex items-center justify-between p-5">
+								<div className="flex items-center">
+									{navLinks.map(({ href, label }) => (
+										<Link
+											className="mr-8 text-inherit hover:underline"
+											key={href}
+											href={href}
+										>
+											{label}
+										</Link>
+									))}
+								</div>
+								{(userId && <UserButton />) || <Button>Sign In</Button>}
+							</nav>
+						</header>
 
-					<main className="flex w-full p-10">{children}</main>
-					<Toaster position="top-right" />
+						<main className="flex w-full p-10">{children}</main>
+						<Toaster position="top-right" />
+					</Providers>
 				</body>
 			</html>
 		</ClerkProvider>

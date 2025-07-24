@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createTask } from "../actions/tasks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { useCreateTask } from "../hooks/useTasks";
 
 // Validation schema
 const createTaskSchema = z.object({
@@ -29,8 +28,7 @@ const createTaskSchema = z.object({
 type CreateTaskFormData = z.infer<typeof createTaskSchema>;
 
 export default function CreateTaskForm() {
-	const [isPending, startTransition] = useTransition();
-	const [formError, setFormError] = useState<string | null>(null);
+	const createTaskMutation = useCreateTask();
 
 	const {
 		register,
@@ -51,30 +49,18 @@ export default function CreateTaskForm() {
 	const completed = watch("completed");
 
 	const onSubmit = async (data: CreateTaskFormData) => {
-		setFormError(null);
+		try {
+			await createTaskMutation.mutateAsync(data);
 
-		startTransition(async () => {
-			try {
-				const formData = new FormData();
-				formData.append("title", data.title);
-				formData.append("description", data.description);
-				formData.append("completed", data.completed.toString());
+			// Show success toast
+			toast.success("Task created successfully!");
 
-				await createTask(formData);
-
-				// Show success toast
-				toast.success("Task created successfully!");
-
-				// Reset form
-				reset();
-			} catch (err) {
-				const errorMessage =
-					err instanceof Error ? err.message : "Failed to create task.";
-				setFormError(errorMessage);
-				toast.error("Failed to create task. Please try again.");
-				console.error(err);
-			}
-		});
+			// Reset form
+			reset();
+		} catch (error) {
+			toast.error("Failed to create task. Please try again.");
+			console.error(error);
+		}
 	};
 
 	return (
@@ -90,7 +76,7 @@ export default function CreateTaskForm() {
 							type="text"
 							id="title"
 							{...register("title")}
-							disabled={isPending}
+							disabled={createTaskMutation.isPending}
 							placeholder="Enter task title..."
 							className={errors.title ? "border-destructive" : ""}
 						/>
@@ -104,7 +90,7 @@ export default function CreateTaskForm() {
 						<Textarea
 							id="description"
 							{...register("description")}
-							disabled={isPending}
+							disabled={createTaskMutation.isPending}
 							placeholder="Enter task description..."
 							rows={3}
 							className={errors.description ? "border-destructive" : ""}
@@ -124,19 +110,25 @@ export default function CreateTaskForm() {
 							onCheckedChange={(checked: boolean) =>
 								setValue("completed", checked)
 							}
-							disabled={isPending}
+							disabled={createTaskMutation.isPending}
 						/>
 					</div>
 
-					{formError && (
+					{createTaskMutation.isError && (
 						<Alert variant="destructive">
 							<AlertCircle className="h-4 w-4" />
-							<AlertDescription>{formError}</AlertDescription>
+							<AlertDescription>
+								{createTaskMutation.error?.message || "Failed to create task"}
+							</AlertDescription>
 						</Alert>
 					)}
 
-					<Button type="submit" disabled={isPending} className="w-full">
-						{isPending ? "Creating..." : "Create Task"}
+					<Button
+						type="submit"
+						disabled={createTaskMutation.isPending}
+						className="w-full"
+					>
+						{createTaskMutation.isPending ? "Creating..." : "Create Task"}
 					</Button>
 				</form>
 			</CardContent>

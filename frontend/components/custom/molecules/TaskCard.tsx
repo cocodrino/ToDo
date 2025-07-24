@@ -1,43 +1,51 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2 } from "lucide-react";
-import { toggleTask, deleteTask } from "@/app/actions/tasks";
+import { useToggleTask, useDeleteTask } from "@/app/hooks/useTasks";
 import type { types } from "@/app/lib/client";
+import toast from "react-hot-toast";
 
 interface TaskCardProps {
 	task: types.Task;
 }
 
 export default function TaskCard({ task }: TaskCardProps) {
-	const [isPending, startTransition] = useTransition();
 	const [isCompleted, setIsCompleted] = useState(task.completed);
 
-	const handleToggleComplete = (checked: boolean) => {
+	const toggleTaskMutation = useToggleTask();
+	const deleteTaskMutation = useDeleteTask();
+
+	const handleToggleComplete = async (checked: boolean) => {
 		setIsCompleted(checked);
 
-		startTransition(async () => {
-			try {
-				await toggleTask(task.id.toString());
-			} catch (error) {
-				// Revert the state if the update fails
-				setIsCompleted(!checked);
-				console.error("Failed to toggle task:", error);
-			}
-		});
+		try {
+			await toggleTaskMutation.mutateAsync(task.id.toString());
+			toast.success(
+				checked ? "Task marked as completed!" : "Task marked as pending!",
+			);
+		} catch (error) {
+			// Revert the state if the update fails
+			setIsCompleted(!checked);
+			toast.error("Failed to update task status");
+			console.error("Failed to toggle task:", error);
+		}
 	};
 
-	const handleDelete = () => {
-		startTransition(async () => {
-			try {
-				await deleteTask(task.id.toString());
-			} catch (error) {
-				console.error("Failed to delete task:", error);
-			}
-		});
+	const handleDelete = async () => {
+		try {
+			await deleteTaskMutation.mutateAsync(task.id.toString());
+			toast.success("Task deleted successfully!");
+		} catch (error) {
+			toast.error("Failed to delete task");
+			console.error("Failed to delete task:", error);
+		}
 	};
+
+	const isPending =
+		toggleTaskMutation.isPending || deleteTaskMutation.isPending;
 
 	return (
 		<Card className="relative">
