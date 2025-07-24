@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Montserrat, Ephesis } from "next/font/google";
 import Link from "next/link";
 import { ClerkProvider, UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
@@ -9,9 +9,20 @@ import { Toaster } from "react-hot-toast";
 import Providers from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
+const montserrat = Montserrat({
+	subsets: ["latin"],
+	weight: ["600"],
+	style: ["normal", "italic"],
+	variable: "--font-montserrat",
+});
+const ephesis = Ephesis({
+	subsets: ["latin"],
+	weight: ["400"],
+	variable: "--font-ephesis",
+});
 
 export const metadata: Metadata = {
-	title: "Encore + Next.js",
+	title: "MyTodo - The Only ToDo App that you need!!!",
 };
 
 const navLinks = [
@@ -29,7 +40,9 @@ export default async function RootLayout({
 	return (
 		<ClerkProvider>
 			<html lang="en">
-				<body className={`${inter.className} text-black bg-white`}>
+				<body
+					className={`${inter.className} ${montserrat.variable} ${ephesis.variable} text-black bg-white`}
+				>
 					<Providers>
 						<header>
 							<nav className="h-navBar bg-black text-white flex items-center justify-between p-5">

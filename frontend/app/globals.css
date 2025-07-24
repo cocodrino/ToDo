@@ -88,3 +88,12 @@ main {
 		@apply bg-background text-foreground;
 	}
 }
+
+@layer utilities {
+	.font-montserrat {
+		font-family: var(--font-montserrat);
+	}
+	.font-ephesis {
+		font-family: var(--font-ephesis);
+	}
+}

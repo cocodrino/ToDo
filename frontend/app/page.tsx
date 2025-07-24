@@ -1,42 +1,37 @@
-import {FC} from "react";
+import { auth } from "@clerk/nextjs/server";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function Home() {
-  return (
-    <section className="flex w-full flex-col justify-center items-center">
-      <h1 className="text-5xl mb-20">Next.js + Encore Web App Starter</h1>
+	const { userId } = await auth();
 
-      <div className="grid grid-cols-4 max-w-6xl">
-        <Card
-          href="https://encore.dev/docs"
-          heading="Encore Docs"
-          desc="Learn how to build cloud backends using the Encore´s Development Platform."
-        />
+	return (
+		<section className="flex w-full flex-col justify-center items-center min-h-[calc(100vh-165px)]">
+			<div className="text-center space-y-6">
+				<h1 className="text-7xl font-montserrat font-bold italic text-black">
+					MyTodoTasks
+				</h1>
 
-        <Card
-          href="https://nextjs.org/docs"
-          heading="Next.js Docs"
-          desc="Find in-depth information about Next.js features and API."
-        />
+				<h2 className="text-5xl font-ephesis text-muted-foreground">
+					The Only ToDo App that you need!!!
+				</h2>
 
-        <Card
-          href="http://localhost:9400"
-          heading="Local Dev Dash"
-          desc="Access Encore's local development dashboard when running Encore locally."
-        />
-
-        <Card
-          href="https://encore.dev/docs/deploy/deploying"
-          heading="Deploy"
-          desc="Learn how to deploy your Encore application."
-        />
-      </div>
-    </section>
-  );
-}
-
-const Card: FC<{ href: string; heading: string; desc: string }> = ({href, heading, desc}) => {
-  return <a href={href} className="group p-4 bg-white bg-opacity-0 transition hover:bg-black hover:bg-opacity-5" target="_blank">
-    <h2 className="mb-2 font-semibold">{heading} <span className="inline-block transition group-hover:translate-x-2">-&gt;</span></h2>
-    <p className="opacity-60">{desc}</p>
-  </a>
+				<div className="pt-10">
+					{userId ? (
+						<Link href="/tasks">
+							<Button size="lg" className="text-lg px-8 py-3">
+								Check my Tasks
+							</Button>
+						</Link>
+					) : (
+						<Link href="/auth/login">
+							<Button size="lg" className="text-lg px-8 py-3">
+								Sign in Now
+							</Button>
+						</Link>
+					)}
+				</div>
+			</div>
+		</section>
+	);
 }
