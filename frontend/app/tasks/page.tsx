@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useTasks } from "../hooks/useTasks";
 import TaskFormEditor from "./TaskFormEditor";
 import TaskCard from "../../components/custom/molecules/TaskCard";
+import TasksStateMessage from "../../components/custom/molecules/TasksStateMessage";
 import { redirect } from "next/navigation";
 import type { types } from "../lib/client";
 
@@ -27,27 +28,11 @@ export default function Tasks() {
 	};
 
 	if (!isLoaded || isLoading) {
-		return (
-			<section className="max-w-4xl mx-auto p-6">
-				<h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
-				<div className="text-center py-8">
-					<p className="text-muted-foreground">Loading tasks...</p>
-				</div>
-			</section>
-		);
+		return <TasksStateMessage type="loading" />;
 	}
 
 	if (error) {
-		return (
-			<section className="max-w-4xl mx-auto p-6">
-				<h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
-				<div className="text-center py-8">
-					<p className="text-destructive">
-						Error loading tasks: {error.message}
-					</p>
-				</div>
-			</section>
-		);
+		return <TasksStateMessage type="error" message={error.message} />;
 	}
 
 	return (
