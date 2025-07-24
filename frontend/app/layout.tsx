@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 const navLinks = [
 	{ href: "/", label: "Home" },
-	{ href: "/tasks", label: "Your Tasks" },
+	{ href: "/tasks", label: "My Tasks" },
 ];
 
 export default async function RootLayout({

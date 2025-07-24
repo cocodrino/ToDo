@@ -1,5 +1,5 @@
 import Client, { Environment } from "./client";
-import logger from "./logger";
+import logger from "@/lib/logger";
 
 /**
  * Returns the Encore request client for either the local or staging environment.
