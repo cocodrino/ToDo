@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import { useCreateTask, useUpdateTask } from "../../hooks/useTasks";
 import type { types } from "../../lib/client";
 import { useEffect } from "react";
+import logger from "@/lib/logger";
 
 // Validation schema
 const taskSchema = z.object({
@@ -95,7 +96,7 @@ export default function TaskFormEditor({
 		} catch (error) {
 			const action = formType === "newForm" ? "create" : "update";
 			toast.error(`Failed to ${action} task. Please try again.`);
-			console.error(error);
+			logger.error(error);
 		}
 	};
 

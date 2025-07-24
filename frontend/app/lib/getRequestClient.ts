@@ -1,4 +1,5 @@
 import Client, { Environment } from "./client";
+import logger from "./logger";
 
 /**
  * Returns the Encore request client for either the local or staging environment.
@@ -21,7 +22,7 @@ const getRequestClient = () => {
       const sessionCookie = cookieStore.get("__session");
       token = sessionCookie?.value || "";
     } catch (error) {
-      console.warn("Could not get cookies from next/headers:", error);
+      logger.warn("Could not get cookies from next/headers:", error);
     }
   } else {
     // Client-side: use document.cookie
@@ -34,7 +35,7 @@ const getRequestClient = () => {
         token = sessionCookie.split("=")[1];
       }
     } catch (error) {
-      console.warn("Could not get cookies from document.cookie:", error);
+      logger.warn("Could not get cookies from document.cookie:", error);
     }
   }
 

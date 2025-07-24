@@ -14,6 +14,7 @@ import { Trash2, Pencil } from "lucide-react";
 import { useToggleTask, useDeleteTask } from "@/app/hooks/useTasks";
 import type { types } from "@/app/lib/client";
 import toast from "react-hot-toast";
+import logger from "@/lib/logger";
 
 interface TaskCardProps {
 	task: types.Task;
@@ -38,7 +39,7 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
 			// Revert the state if the update fails
 			setIsCompleted(!checked);
 			toast.error("Failed to update task status");
-			console.error("Failed to toggle task:", error);
+			logger.error("Failed to toggle task:", error);
 		}
 	};
 
@@ -48,7 +49,7 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
 			toast.success("Task deleted successfully!");
 		} catch (error) {
 			toast.error("Failed to delete task");
-			console.error("Failed to delete task:", error);
+			logger.error("Failed to delete task:", error);
 		}
 	};
 

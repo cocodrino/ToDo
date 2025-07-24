@@ -1,4 +1,5 @@
 import Client, { Environment } from "./client";
+import logger from "./logger";
 
 /**
  * Returns the Encore request client for client-side usage only.
@@ -17,7 +18,7 @@ const getClientRequestClient = () => {
             token = sessionCookie.split("=")[1];
         }
     } catch (error) {
-        console.warn("Could not get cookies from document.cookie:", error);
+        logger.warn("Could not get cookies from document.cookie:", error);
     }
 
     const localUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
