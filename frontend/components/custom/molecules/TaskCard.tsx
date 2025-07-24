@@ -3,16 +3,24 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Trash2, Pencil } from "lucide-react";
 import { useToggleTask, useDeleteTask } from "@/app/hooks/useTasks";
 import type { types } from "@/app/lib/client";
 import toast from "react-hot-toast";
 
 interface TaskCardProps {
 	task: types.Task;
+	onEdit?: (task: types.Task) => void;
 }
 
-export default function TaskCard({ task }: TaskCardProps) {
+export default function TaskCard({ task, onEdit }: TaskCardProps) {
 	const [isCompleted, setIsCompleted] = useState(task.completed);
 
 	const toggleTaskMutation = useToggleTask();
@@ -42,6 +50,10 @@ export default function TaskCard({ task }: TaskCardProps) {
 			toast.error("Failed to delete task");
 			console.error("Failed to delete task:", error);
 		}
+	};
+
+	const handleEdit = () => {
+		onEdit?.(task);
 	};
 
 	const isPending =
@@ -77,15 +89,46 @@ export default function TaskCard({ task }: TaskCardProps) {
 							)}
 						</div>
 					</div>
-					<button
-						type="button"
-						onClick={handleDelete}
-						disabled={isPending}
-						className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-muted"
-						aria-label="Delete task"
-					>
-						<Trash2 size={16} />
-					</button>
+					<div className="flex items-center space-x-1">
+						<TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={handleEdit}
+										disabled={isPending}
+										className="h-8 w-8 p-0"
+										aria-label="Edit task"
+									>
+										<Pencil size={14} />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Edit</p>
+								</TooltipContent>
+							</Tooltip>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<Button
+										type="button"
+										variant="outline"
+										size="sm"
+										onClick={handleDelete}
+										disabled={isPending}
+										className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive transition-colors"
+										aria-label="Delete task"
+									>
+										<Trash2 size={14} />
+									</Button>
+								</TooltipTrigger>
+								<TooltipContent>
+									<p>Delete</p>
+								</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
+					</div>
 				</div>
 			</CardHeader>
 			<CardContent className="pt-0">

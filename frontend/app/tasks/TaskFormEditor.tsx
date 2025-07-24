@@ -12,10 +12,12 @@ import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { useCreateTask } from "../hooks/useTasks";
+import { useCreateTask, useUpdateTask } from "../hooks/useTasks";
+import type { types } from "../lib/client";
+import { useEffect } from "react";
 
 // Validation schema
-const createTaskSchema = z.object({
+const taskSchema = z.object({
 	title: z
 		.string()
 		.min(3, "Title is required and must be at least 3 characters"),
@@ -25,10 +27,21 @@ const createTaskSchema = z.object({
 	completed: z.boolean(),
 });
 
-type CreateTaskFormData = z.infer<typeof createTaskSchema>;
+type TaskFormData = z.infer<typeof taskSchema>;
 
-export default function CreateTaskForm() {
+interface TaskFormEditorProps {
+	formType: "newForm" | "editForm";
+	task?: types.Task;
+	onCancel?: () => void;
+}
+
+export default function TaskFormEditor({
+	formType,
+	task,
+	onCancel,
+}: TaskFormEditorProps) {
 	const createTaskMutation = useCreateTask();
+	const updateTaskMutation = useUpdateTask();
 
 	const {
 		register,
@@ -37,8 +50,8 @@ export default function CreateTaskForm() {
 		reset,
 		watch,
 		setValue,
-	} = useForm<CreateTaskFormData>({
-		resolver: zodResolver(createTaskSchema),
+	} = useForm<TaskFormData>({
+		resolver: zodResolver(taskSchema),
 		defaultValues: {
 			title: "",
 			description: "",
@@ -47,26 +60,59 @@ export default function CreateTaskForm() {
 	});
 
 	const completed = watch("completed");
+	const isPending =
+		createTaskMutation.isPending || updateTaskMutation.isPending;
 
-	const onSubmit = async (data: CreateTaskFormData) => {
+	// Populate form with task data when editing
+	useEffect(() => {
+		if (formType === "editForm" && task) {
+			reset({
+				title: task.title,
+				description: task.description || "",
+				completed: task.completed,
+			});
+		}
+	}, [formType, task, reset]);
+
+	const onSubmit = async (data: TaskFormData) => {
 		try {
-			await createTaskMutation.mutateAsync(data);
-
-			// Show success toast
-			toast.success("Task created successfully!");
-
-			// Reset form
-			reset();
+			if (formType === "newForm") {
+				await createTaskMutation.mutateAsync(data);
+				toast.success("Task created successfully!");
+				reset();
+			} else if (formType === "editForm" && task) {
+				await updateTaskMutation.mutateAsync({
+					taskId: task.id.toString(),
+					data: {
+						title: data.title,
+						description: data.description,
+						completed: data.completed,
+					},
+				});
+				toast.success("Task updated successfully!");
+				onCancel?.();
+			}
 		} catch (error) {
-			toast.error("Failed to create task. Please try again.");
+			const action = formType === "newForm" ? "create" : "update";
+			toast.error(`Failed to ${action} task. Please try again.`);
 			console.error(error);
+		}
+	};
+
+	const handleCancel = () => {
+		if (formType === "newForm") {
+			reset();
+		} else {
+			onCancel?.();
 		}
 	};
 
 	return (
 		<Card className="min-w-[300px] md:min-w-[600px]">
 			<CardHeader>
-				<CardTitle>Create New Task</CardTitle>
+				<CardTitle>
+					{formType === "newForm" ? "Create New Task" : "Edit Task"}
+				</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -76,7 +122,7 @@ export default function CreateTaskForm() {
 							type="text"
 							id="title"
 							{...register("title")}
-							disabled={createTaskMutation.isPending}
+							disabled={isPending}
 							placeholder="Enter task title..."
 							className={errors.title ? "border-destructive" : ""}
 						/>
@@ -90,7 +136,7 @@ export default function CreateTaskForm() {
 						<Textarea
 							id="description"
 							{...register("description")}
-							disabled={createTaskMutation.isPending}
+							disabled={isPending}
 							placeholder="Enter task description..."
 							rows={3}
 							className={errors.description ? "border-destructive" : ""}
@@ -110,26 +156,42 @@ export default function CreateTaskForm() {
 							onCheckedChange={(checked: boolean) =>
 								setValue("completed", checked)
 							}
-							disabled={createTaskMutation.isPending}
+							disabled={isPending}
 						/>
 					</div>
 
-					{createTaskMutation.isError && (
+					{(createTaskMutation.isError || updateTaskMutation.isError) && (
 						<Alert variant="destructive">
 							<AlertCircle className="h-4 w-4" />
 							<AlertDescription>
-								{createTaskMutation.error?.message || "Failed to create task"}
+								{createTaskMutation.error?.message ||
+									updateTaskMutation.error?.message ||
+									"Failed to save task"}
 							</AlertDescription>
 						</Alert>
 					)}
 
-					<Button
-						type="submit"
-						disabled={createTaskMutation.isPending}
-						className="w-full"
-					>
-						{createTaskMutation.isPending ? "Creating..." : "Create Task"}
-					</Button>
+					<div className="flex space-x-2">
+						<Button type="submit" disabled={isPending} className="flex-1">
+							{isPending
+								? formType === "newForm"
+									? "Creating..."
+									: "Saving..."
+								: formType === "newForm"
+									? "Create Task"
+									: "Save Changes"}
+						</Button>
+						{formType === "editForm" && (
+							<Button
+								type="button"
+								variant="outline"
+								onClick={handleCancel}
+								disabled={isPending}
+							>
+								Cancel
+							</Button>
+						)}
+					</div>
 				</form>
 			</CardContent>
 		</Card>

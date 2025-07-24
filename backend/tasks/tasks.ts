@@ -53,6 +53,10 @@ export const getTasks = api(
 
     const tasks = await prisma.task.findMany({
       where: { userId: auth.userID },
+      orderBy: [
+        { createdAt: 'desc' }, // Most recent first
+        { id: 'asc' } // Then by ID for consistency
+      ],
     });
 
     return { data: tasks };
