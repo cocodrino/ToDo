@@ -61,33 +61,22 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
 
 	return (
 		<Card className="relative">
-			<CardHeader className="pb-2">
-				<div className="flex items-start justify-between">
-					<div className="flex items-start space-x-3 flex-1">
+			<CardHeader className="pb-3">
+				<div className="flex items-center justify-between">
+					<div className="flex items-center space-x-3 flex-1">
 						<Checkbox
 							checked={isCompleted}
 							onCheckedChange={handleToggleComplete}
 							disabled={isPending}
 							className="mt-1"
 						/>
-						<div className="flex-1">
-							<h3
-								className={`text-lg font-semibold ${
-									isCompleted ? "line-through text-red-500" : "text-foreground"
-								}`}
-							>
-								{task.title}
-							</h3>
-							{task.description && (
-								<p
-									className={`text-sm text-muted-foreground mt-1 ${
-										isCompleted ? "line-through" : ""
-									}`}
-								>
-									{task.description}
-								</p>
-							)}
-						</div>
+						<h3
+							className={`text-lg font-semibold ${
+								isCompleted ? "line-through text-red-500" : "text-foreground"
+							}`}
+						>
+							{task.title}
+						</h3>
 					</div>
 					<div className="flex items-center space-x-1">
 						<TooltipProvider>
@@ -132,6 +121,15 @@ export default function TaskCard({ task, onEdit }: TaskCardProps) {
 				</div>
 			</CardHeader>
 			<CardContent className="pt-0">
+				{task.description && (
+					<p
+						className={`text-sm text-muted-foreground mb-3 ${
+							isCompleted ? "line-through" : ""
+						}`}
+					>
+						{task.description}
+					</p>
+				)}
 				<div className="flex items-center justify-between text-xs text-muted-foreground">
 					<span>Status: {isCompleted ? "Completed" : "Pending"}</span>
 				</div>

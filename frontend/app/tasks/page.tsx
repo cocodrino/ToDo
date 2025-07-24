@@ -21,6 +21,8 @@ export default function Tasks() {
 
 	const handleEditTask = (task: types.Task) => {
 		setEditingTask(task);
+		// Scroll to top when editing a task
+		window.scrollTo({ top: 0, behavior: "smooth" });
 	};
 
 	const handleCancelEdit = () => {
@@ -36,37 +38,38 @@ export default function Tasks() {
 	}
 
 	return (
-		<section className="max-w-4xl mx-auto p-6">
-			<h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
-
-			{editingTask ? (
-				<div className="mb-8">
-					<TaskFormEditor
-						formType="editForm"
-						task={editingTask}
-						onCancel={handleCancelEdit}
-					/>
+		<section className="mx-auto p-6">
+			<div className="flex flex-col xl:flex-row gap-4">
+				<div>
+					{editingTask ? (
+						<div className="mb-8">
+							<TaskFormEditor
+								formType="editForm"
+								task={editingTask}
+								onCancel={handleCancelEdit}
+							/>
+						</div>
+					) : (
+						<div className="mb-8">
+							<TaskFormEditor formType="newForm" />
+						</div>
+					)}
 				</div>
-			) : (
-				<div className="mb-8">
-					<TaskFormEditor formType="newForm" />
+				<div className="sm:min-w-[500px] h-[calc(100vh-145px)] overflow-y-auto">
+					{!tasks || tasks.length === 0 ? (
+						<div className="text-center py-8">
+							<p className="text-muted-foreground">
+								No tasks found. Create one above!
+							</p>
+						</div>
+					) : (
+						<div className="space-y-4 pr-2">
+							{tasks.map((task) => (
+								<TaskCard key={task.id} task={task} onEdit={handleEditTask} />
+							))}
+						</div>
+					)}
 				</div>
-			)}
-
-			<div className="mt-8">
-				{!tasks || tasks.length === 0 ? (
-					<div className="text-center py-8">
-						<p className="text-muted-foreground">
-							No tasks found. Create one above!
-						</p>
-					</div>
-				) : (
-					<div className="space-y-4">
-						{tasks.map((task) => (
-							<TaskCard key={task.id} task={task} onEdit={handleEditTask} />
-						))}
-					</div>
-				)}
 			</div>
 		</section>
 	);
