@@ -14,7 +14,6 @@ nextjs-starter/
 ├── 📁 backend/                          # Backend con Encore.dev
 │   ├── 📁 auth/                         # Autenticación con Clerk
 │   │   ├── auth.ts                      # Configuración de autenticación
-│   │   ├── auth.test.ts                 # Tests de autenticación
 │   │   └── encore.service.ts            # Servicio Encore para auth
 │   ├── 📁 middleware/                   # Middleware personalizado
 │   │   ├── errorHandler.test.ts         # Tests de manejo de errores
@@ -105,6 +104,7 @@ nextjs-starter/
 - **Autenticación**: Clerk - Integración nativa con el sistema de autenticación
 - **Testing**: Vitest + React Testing Library - Testing moderno y accesible
 - **Cliente API**: RPC tipado generado automáticamente por Encore en `frontend/app/lib/client.ts` - Este archivo se genera automáticamente desde el backend y proporciona métodos tipados para llamar a todos los endpoints como funciones nativas de TypeScript
+- **Validaciones**: en el Backend usando Encore para las validaciones y en el front usando Zod
 
 ### **Características Principales**
 - ✅ **Autenticación completa** con Clerk
@@ -127,6 +127,26 @@ Antes de comenzar, asegúrate de tener instalado:
 - **Encore CLI** - [Instrucciones de instalación](https://encore.dev/docs/go/install#install-the-encore-cli)
 - **Docker** (opcional, solo si usas Docker Compose)
 
+## Nota Importante
+Encore Framework requiere que se seteen unos secrets y se corran unas configuraciones, para ello una vez instalado encore cli ejecutar
+
+```bash
+encore app init
+
+```
+
+```bash
+encore secret set --type dev,local DATABASE_URL
+
+# luego colocar la url de la db sin comillas
+
+encore secret set --type dev,local CLERK_SECRET_KEY
+
+# colocar el secret key de clerk
+```
+
+luego de esto se puede continuar con la configuración de los entornos
+
 ## 🔧 **Configuración del Entorno**
 
 ### **Opción 1: Desarrollo Local (Recomendado)**
@@ -144,8 +164,7 @@ npm install
 cp .env.sample .env
 # Editar .env con tus credenciales de Clerk y base de datos
 
-# Inicializar la aplicación Encore
-encore app init
+
 ```
 
 #### **2. Configurar el Frontend**
@@ -165,7 +184,7 @@ cp .env.local.sample .env.local
 ### **Opción 2: Docker Compose**
 
 ```bash
-# Configurar variables de entorno
+# Configurar variables de entorno en la raiz del proyecto (mismo nivel de docker-compose.yml)
 cp .env.sample .env
 # Editar .env con tus credenciales
 

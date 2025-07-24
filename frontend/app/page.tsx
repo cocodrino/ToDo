@@ -13,7 +13,7 @@ export default async function Home() {
 				</h1>
 
 				<h2 className="text-5xl font-ephesis text-muted-foreground">
-					The Only ToDo App that you need!!!
+					The only To-Do app you&apos;ll ever need!
 				</h2>
 
 				<div className="pt-10">

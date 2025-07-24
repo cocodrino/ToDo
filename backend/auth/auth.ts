@@ -1,9 +1,16 @@
 import { APIError, Gateway, type Header, api } from "encore.dev/api";
 import { authHandler } from "encore.dev/auth";
 import { Clerk } from "@clerk/clerk-sdk-node";
+import { secret } from "encore.dev/config";
+
+// ENCORE CLOUD HOSTING USE SECRETS INSTEAD OF ENV VARS
+const CLERK_ENCORE_SECRET = secret("CLERK_SECRET_KEY")();
+if (CLERK_ENCORE_SECRET) {
+  process.env.CLERK_SECRET_KEY = CLERK_ENCORE_SECRET;
+}
 
 const clerk = Clerk({
-  secretKey: process.env.CLERK_SECRET_KEY,
+  secretKey: process.env.CLERK_SECRET_KEY
 });
 
 interface AuthParams {

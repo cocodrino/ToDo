@@ -57,7 +57,11 @@ export default async function RootLayout({
 										</Link>
 									))}
 								</div>
-								{(userId && <UserButton />) || <Button>Sign In</Button>}
+								{(userId && <UserButton />) || (
+									<Link href="/auth/login">
+										<Button>Sign In</Button>
+									</Link>
+								)}
 							</nav>
 						</header>
 
