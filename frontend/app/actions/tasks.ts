@@ -13,15 +13,24 @@ export async function createTask(formData: FormData) {
 
     const title = formData.get("title") as string;
     const description = formData.get("description") as string;
+    const completed = formData.get("completed") === "true";
 
     if (!title.trim()) {
         throw new Error("Title is required");
     }
 
+    if (!description.trim()) {
+        throw new Error("Description is required");
+    }
+
     try {
         // Use the configured Encore RPC client
         const client = getRequestClient();
-        await client.tasks.createTask({ title: title.trim(), description: description.trim() || undefined });
+        await client.tasks.createTask({
+            title: title.trim(),
+            description: description.trim(),
+            completed
+        });
 
         revalidatePath("/tasks");
         return { success: true };

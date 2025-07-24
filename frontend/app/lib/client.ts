@@ -140,6 +140,7 @@ export namespace tasks {
         public async createTask(params: {
     title: string
     description?: string
+    completed?: boolean
 }): Promise<types.TaskResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/api/tasks`, JSON.stringify(params))

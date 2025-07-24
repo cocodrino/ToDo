@@ -14,8 +14,8 @@ export const createTask = api(
     path: "/api/tasks",
     auth: true,
   },
-  async (params: { title: string; description?: string }): Promise<TaskResponse> => {
-    const { title, description } = params;
+  async (params: { title: string; description?: string; completed?: boolean }): Promise<TaskResponse> => {
+    const { title, description, completed = true } = params;
     const auth = getAuthData();
 
     if (!auth) {
@@ -26,6 +26,7 @@ export const createTask = api(
       data: {
         title,
         description,
+        completed,
         userId: auth.userID,
       },
     });

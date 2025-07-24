@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ClerkProvider, UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -46,6 +47,7 @@ export default async function RootLayout({
 					</header>
 
 					<main className="flex w-full p-10">{children}</main>
+					<Toaster position="top-right" />
 				</body>
 			</html>
 		</ClerkProvider>
