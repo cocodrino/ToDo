@@ -6,4 +6,4 @@ alwaysApply: true
 - la librería de estilos usa tailwind y shadcn
 - no debes crear componentes nuevos si ya existen en shadcn, estos componentes son instalados dentro de la carpeta /componentes/ui y se usan los comandos de shadcn para instalarlos, no escribas el código
 - utiliza Context7 MCP si necesitas acceder a la documentación mas nueva de Shadcn o tailwind
-- para los componentes que necesites crear asi como también la composición de componentes, sigue la estructura atomic design, teniendo dentro de /components/custom la carpeta "atoms", "cells" y "molecules"
+

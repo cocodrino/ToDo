@@ -17,23 +17,29 @@ import { useAuth } from '@clerk/nextjs';
 export const taskKeys = {
     all: ['tasks'] as const,
     lists: () => [...taskKeys.all, 'list'] as const,
-    list: (filters: string) => [...taskKeys.lists(), { filters }] as const,
+    list: (filters: { text?: string; filter?: string }) => [...taskKeys.lists(), filters] as const,
     details: () => [...taskKeys.all, 'detail'] as const,
     detail: (id: string) => [...taskKeys.details(), id] as const,
 };
 
+interface UseTasksOptions {
+    text?: string;
+    filter?: 'all' | 'done' | 'pending';
+}
+
 // Get all tasks
-export function useTasks() {
+export function useTasks(options: UseTasksOptions = {}) {
+    const { text, filter } = options;
     const { userId, isLoaded } = useAuth();
 
     return useQuery({
-        queryKey: taskKeys.lists(),
+        queryKey: taskKeys.list({ text, filter }),
         queryFn: async () => {
             if (!userId) {
                 throw new Error('Unauthenticated');
             }
             const client = getClientRequestClient();
-            const response = await client.tasks.getTasks();
+            const response = await client.tasks.getTasks({ text, filter });
             // Ensure we return a plain object that can be serialized
             return response.data || [];
         },
@@ -78,7 +84,7 @@ export function useCreateTask() {
             return response.data;
         },
         onSuccess: () => {
-            // Invalidate and refetch tasks list
+            // Invalidate and refetch all tasks lists (with any filters)
             queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
         },
     });
@@ -102,7 +108,7 @@ export function useUpdateTask() {
             return response.data;
         },
         onSuccess: (_data: types.Task, variables: { taskId: string; data: { title?: string; description?: string; completed?: boolean } }) => {
-            // Invalidate specific task and tasks list
+            // Invalidate specific task and all tasks lists (with any filters)
             queryClient.invalidateQueries({ queryKey: taskKeys.detail(variables.taskId) });
             queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
         },
@@ -127,7 +133,7 @@ export function useToggleTask() {
             return response.data;
         },
         onSuccess: (_data: types.Task, taskId: string) => {
-            // Invalidate specific task and tasks list
+            // Invalidate specific task and all tasks lists (with any filters)
             queryClient.invalidateQueries({ queryKey: taskKeys.detail(taskId) });
             queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
         },

@@ -55,17 +55,37 @@ export const getTasks = api(
     path: "/api/tasks",
     auth: true,
   },
-  async (): Promise<TasksResponse> => {
+  async (params: { text?: string; filter?: string }): Promise<TasksResponse> => {
+    const { text, filter } = params;
     const auth = getAuthData();
-    log.info("Getting tasks for user", { userId: auth?.userID });
+    log.info("Getting tasks for user", { userId: auth?.userID, text, filter });
 
     if (!auth) {
       throw new APIError(ErrCode.Unauthenticated, "Unauthenticated");
     }
 
+    // Build where clause
+    const whereClause: { userId: string; title?: { contains: string; mode: 'insensitive' }; completed?: boolean } = { userId: auth.userID };
+
+    // Add text search filter
+    if (text?.trim()) {
+      whereClause.title = {
+        contains: text.trim(),
+        mode: 'insensitive' as const, // Case insensitive search
+      };
+    }
+
+    // Add completion status filter
+    if (filter === 'done') {
+      whereClause.completed = true;
+    } else if (filter === 'pending') {
+      whereClause.completed = false;
+    }
+    // If filter is 'all' or undefined, no additional filter is applied
+
     const tasks = await trace("getTasks", () =>
       prisma.task.findMany({
-        where: { userId: auth.userID },
+        where: whereClause,
         orderBy: [
           { createdAt: 'desc' }, // Most recent first
           { id: 'asc' } // Then by ID for consistency
@@ -73,7 +93,7 @@ export const getTasks = api(
       })
     );
 
-    log.info("Tasks retrieved successfully", { count: tasks.length });
+    log.info("Tasks retrieved successfully", { count: tasks.length, text, filter });
 
     return { data: tasks };
   },

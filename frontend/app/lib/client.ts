@@ -140,9 +140,18 @@ export namespace tasks {
         /**
          * Get all tasks
          */
-        public async getTasks(): Promise<types.TasksResponse> {
+        public async getTasks(params: {
+    text?: string
+    filter?: string
+}): Promise<types.TasksResponse> {
+            // Convert our params into the objects we need for the request
+            const query = makeRecord<string, string | string[]>({
+                filter: params.filter,
+                text:   params.text,
+            })
+
             // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`)
+            const resp = await this.baseClient.callTypedAPI("GET", `/api/tasks`, undefined, {query})
             return await resp.json() as types.TasksResponse
         }
 
